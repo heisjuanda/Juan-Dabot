@@ -18,20 +18,31 @@ Bot de Telegram diseñado para ayudar a estudiantes de Ingeniería en Sistemas d
    GROQ_MODEL=llama3-70b-8192
    ```
 
-   Opción 2: Ejecutar el script de configuración:
-   ```
-   source setup_env.sh
-   ```
-   Asegúrate de editar `setup_env.sh` primero para incluir tus propias claves API.
-
-   Opción 3: Editar directamente las claves en el código `main_bot.py`
+   Opción 2: Editar directamente las claves en el código `main_bot.py`
 
 ## Ejecución
 
-Para iniciar el bot:
+Para iniciar el bot localmente:
 ```
 python main_bot.py
 ```
+
+Para ejecutar con Gunicorn:
+```
+gunicorn wsgi:app
+```
+
+## Despliegue en Render
+
+1. Conecta tu repositorio a Render.
+2. Crea un nuevo Web Service.
+3. Configura las siguientes opciones:
+   - **Build Command:** `pip install -r requirements.txt`
+   - **Start Command:** `gunicorn wsgi:app`
+4. En la sección "Environment Variables", añade:
+   - `TELEGRAM_TOKEN`: Tu token de bot de Telegram
+   - `GROQ_API_KEY`: Tu API key de Groq
+   - `GROQ_MODEL`: El modelo de Groq a utilizar (ej. llama3-70b-8192)
 
 ## Funcionalidades
 

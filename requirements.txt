@@ -3,3 +3,4 @@ requests
 groq
 python-dotenv
 gunicorn==21.2.0
+flask
