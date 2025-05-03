@@ -5,6 +5,7 @@ from telegram.constants import ParseMode
 from groq import Groq
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 from dotenv import load_dotenv
+import asyncio
 
 load_dotenv()
 
@@ -95,12 +96,25 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         logging.warning(f"Error de formato Markdown en mensaje de bienvenida: {markdown_error}. Enviando sin formato.")
         await update.message.reply_text(welcome_message)
 
-def main():
+async def main():
     TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler('start', start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    app.run_polling()
+    
+    # Correr el bot de forma asíncrona
+    await app.initialize()
+    await app.start()
+    await app.updater.start_polling()
+    
+    # Mantener el bot funcionando hasta que se cierre el programa
+    try:
+        await asyncio.Future()  # Correr indefinidamente
+    except (KeyboardInterrupt, SystemExit):
+        # Si se interrumpe el programa, cerrar el bot
+        await app.stop()
+        await app.updater.stop()
 
 if __name__ == '__main__':
-    main()
+    # Ejecutar la función main de forma asíncrona
+    asyncio.run(main())
