@@ -1,11 +1,13 @@
 import logging
 import os
-from telegram import Update
+from telegram import Update, InputFile
 from telegram.constants import ParseMode
 from groq import Groq
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, ContextTypes, filters
 from dotenv import load_dotenv
 import asyncio
+import qrcode
+from io import BytesIO
 
 load_dotenv()
 
@@ -33,22 +35,39 @@ def ask_groq(message):
                     "INSTRUCCIONES DE FORMATO: Formatea tus respuestas usando Markdown de Telegram. Usa *texto* para negritas, "
                     "_texto_ para cursiva, `texto` para código, ```texto``` para bloques de código. Utiliza formato para resaltar "
                     "títulos, conceptos importantes y para mejorar la legibilidad.\n\n"
+                    "ENLACES IMPORTANTES: Recuerda proporcionar estos enlaces cuando sean relevantes para la conversación:\n"
+                    "- Aplicación web principal: [Aplicación web](https://trabajo-de-grado-2-front.vercel.app/)\n"
+                    "- Actividad de Oratoria: [Oratoria](https://trabajo-de-grado-2-front.vercel.app/activity/oratoria)\n"
+                    "- Actividad de Pensamiento Crítico: [Pensamiento Crítico](https://trabajo-de-grado-2-front.vercel.app/activity/debate-ia)\n\n"
+                    "INSTRUCCIONES SOBRE LA APLICACIÓN WEB: Cuando los usuarios pregunten específicamente por el acceso a la aplicación "
+                    "o cómo acceder a la plataforma, responde con enlaces directos a la aplicación web principal y a las actividades específicas: "
+                    "'Puedes acceder a nuestra aplicación web en: https://trabajo-de-grado-2-front.vercel.app/ "
+                    "También puedes acceder directamente a las actividades:\n"
+                    "- Oratoria: https://trabajo-de-grado-2-front.vercel.app/activity/oratoria\n"
+                    "- Pensamiento Crítico: https://trabajo-de-grado-2-front.vercel.app/activity/debate-ia\n"
+                    "Allí encontrarás todas las actividades y recursos para mejorar tu Oratoría y Pensamiento Crítico.'\n\n"
+                    "REDES SOCIALES DEL CREADOR: Cuando los usuarios pregunten por JuanDa o quieran contactarlo, comparte sus redes sociales así:\n"
+                    "- Instagram: [Instagram @hellojuanda](https://www.instagram.com/hellojuanda/)\n"
+                    "- Telegram: @heisjuanda\n"
+                    "- LinkedIn: [LinkedIn - Juan David Moreno](https://www.linkedin.com/in/juan-david-moreno-883a46233/)\n\n"
+                    "Si te preguntan de manera coqueta o específicamente por su Instagram, comparte su perfil de Instagram.\n\n"
                     "Información sobre la tesis:\n"
                     "- *ORATORÍA*: Incluye una actividad principal llamada 'Discursos con IA' donde se evalúa el tono de voz, "
                     "palabras usadas y capacidad de expresión ante una audiencia. La actividad tiene tres niveles de dificultad: "
                     "1) *Principiante*: se le dará un discurso completo y palabras clave a usar, 2) *Intermedio*: Tendrá la idea del "
                     "discurso y el usuario tendrá que hacerlo él mismo, 3) *Experto*: tendrá el tema del discurso y se le hará una "
                     "pregunta sobre el discurso. Todos los niveles incluyen palabras claves. También ofrece una lista de reproducción "
-                    "de YouTube para mejorar la oratoría, acceso al juego Story-Dice y material de aprendizaje adicional.\n\n"
+                    "de YouTube para mejorar la oratoría, acceso al juego Story-Dice y material de aprendizaje adicional. "
+                    "Enlace directo: https://trabajo-de-grado-2-front.vercel.app/activity/oratoria\n\n"
                     "- *PENSAMIENTO CRÍTICO*: Incluye una actividad principal llamada 'Debates de temas aleatorios con IA', "
                     "donde se evalúa la capacidad del usuario para defender ideas y presentar argumentos. También ofrece una "
-                    "lista de reproducción de YouTube para mejorar el pensamiento crítico y puzzles para ejercitar la mente.\n\n"
+                    "lista de reproducción de YouTube para mejorar el pensamiento crítico y puzzles para ejercitar la mente. "
+                    "Enlace directo: https://trabajo-de-grado-2-front.vercel.app/activity/debate-ia\n\n"
                     "- *REPORTES*: En los reportes se muestran métricas de mejora o empeoramiento según las calificaciones de las "
                     "actividades realizadas por los usuarios en ambas habilidades (Oratoría y Pensamiento Crítico).\n\n"
                     "Sobre tu creador: Juan David Moreno Alfonso (JuanDa) es estudiante de Ingeniería en Sistemas, padre de Juan Dabot "
                     "y está dispuesto a ayudar a los estudiantes con su desarrollo en oratoría y pensamiento crítico. Si preguntan por "
-                    "JuanDa, debes mencionar que es guapo y se parece al bot. Si te preguntan de manera coqueta sobre él, proporciona "
-                    "su Instagram: @hellojuanda.\n\n"
+                    "JuanDa, debes mencionar que es guapo y se parece al bot.\n\n"
                     "Problemas técnicos: En la app pueden ocurrir errores por límites de los servicios usados. Intentar de nuevo, "
                     "o esperar al menos 30 minutos a 1 hora puede funcionar. Si el problema persiste, recomienda contactar a JuanDa "
                     "para reportar el problema.\n\n"
@@ -86,35 +105,133 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "- *Juegos* como Story-Dice y puzzles\n"
         "- *Reportes de métricas* para seguir tu progreso\n"
         "- Incluso información sobre mi padre, *JuanDa*, que es mi creador.\n\n"
-        "Si experimentas algún error, intenta de nuevo o espera unos minutos. "
+        "Accede directamente a las actividades:\n"
+        "🎤 [Actividad de Oratoria](https://trabajo-de-grado-2-front.vercel.app/activity/oratoria)\n"
+        "🧠 [Actividad de Pensamiento Crítico](https://trabajo-de-grado-2-front.vercel.app/activity/debate-ia)\n\n"
+        "Comandos disponibles:\n"
+        "/oratoria - Información sobre la actividad de Oratoria\n"
+        "/pensamiento - Información sobre Pensamiento Crítico\n"
+        "/contacto - Redes sociales del creador\n\n"
+        "Si experimentas algún error, intenta de nuevo o espera unos minutos.\n\n"
         "¿En qué puedo ayudarte hoy?"
     )
     
     try:
         await update.message.reply_text(welcome_message, parse_mode=ParseMode.MARKDOWN)
-    except Exception as markdown_error:
-        logging.warning(f"Error de formato Markdown en mensaje de bienvenida: {markdown_error}. Enviando sin formato.")
+        
+        app_url = "https://trabajo-de-grado-2-front.vercel.app/"
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(app_url)
+        qr.make(fit=True)
+        
+        img = qr.make_image(fill_color="black", back_color="white")
+        bio = BytesIO()
+        bio.name = 'app_qr.png'
+        img.save(bio, 'PNG')
+        bio.seek(0)
+        
+        await update.message.reply_photo(
+            photo=bio,
+            caption=(
+                "*Accede a nuestra aplicación web*\n\n"
+                "Escanea el código QR o visita:\n"
+                "🔗 [Aplicación de Oratoría y Pensamiento Crítico](https://trabajo-de-grado-2-front.vercel.app/)\n\n"
+                "O accede directamente a las actividades:\n"
+                "🎤 [Actividad de Oratoria](https://trabajo-de-grado-2-front.vercel.app/activity/oratoria)\n"
+                "🧠 [Actividad de Pensamiento Crítico](https://trabajo-de-grado-2-front.vercel.app/activity/debate-ia)\n\n"
+                "Allí encontrarás todas las actividades y recursos mencionados.\n\n"
+                "Recuerda que puedes usar /contacto para ver las redes sociales de mi creador."
+            ),
+            parse_mode=ParseMode.MARKDOWN
+        )
+    except Exception as e:
+        logging.error(f"Error al enviar QR: {e}")
         await update.message.reply_text(welcome_message)
+
+async def contacto(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    contact_message = (
+        "*Contacto del creador:*\n\n"
+        "Juan David Moreno Alfonso (JuanDa) es el estudiante de Ingeniería en Sistemas que me creó. "
+        "Puedes contactarlo a través de:\n\n"
+        "• [Instagram @hellojuanda](https://www.instagram.com/hellojuanda/)\n"
+        "• Telegram: @heisjuanda\n"
+        "• [LinkedIn - Juan David Moreno](https://www.linkedin.com/in/juan-david-moreno-883a46233/)\n\n"
+        "Si tienes alguna duda sobre la aplicación o necesitas ayuda, no dudes en contactarlo."
+    )
+    
+    try:
+        await update.message.reply_text(contact_message, parse_mode=ParseMode.MARKDOWN)
+    except Exception as e:
+        logging.error(f"Error al enviar información de contacto: {e}")
+        # Versión sin formato en caso de error
+        await update.message.reply_text(
+            "Contacto del creador: Juan David Moreno Alfonso (JuanDa)\n"
+            "Instagram: @hellojuanda (https://www.instagram.com/hellojuanda/)\n"
+            "Telegram: @heisjuanda\n"
+            "LinkedIn: https://www.linkedin.com/in/juan-david-moreno-883a46233/"
+        )
+
+async def oratoria(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    oratoria_message = (
+        "*Actividad de Oratoria*\n\n"
+        "Esta actividad te ayuda a mejorar tus habilidades de expresión oral con tres niveles de dificultad:\n\n"
+        "1️⃣ *Principiante*: Se te proporciona un discurso completo y palabras clave a usar\n"
+        "2️⃣ *Intermedio*: Se te da la idea del discurso y debes desarrollarlo tú mismo\n"
+        "3️⃣ *Experto*: Se te proporciona el tema y una pregunta sobre el discurso\n\n"
+        "Accede directamente a la actividad:\n"
+        "🎤 [Actividad de Oratoria](https://trabajo-de-grado-2-front.vercel.app/activity/oratoria)"
+    )
+    
+    try:
+        await update.message.reply_text(oratoria_message, parse_mode=ParseMode.MARKDOWN)
+    except Exception as e:
+        logging.error(f"Error al enviar información de oratoria: {e}")
+        await update.message.reply_text(
+            "Actividad de Oratoria: https://trabajo-de-grado-2-front.vercel.app/activity/oratoria"
+        )
+
+async def pensamiento(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    pensamiento_message = (
+        "*Actividad de Pensamiento Crítico*\n\n"
+        "Esta actividad te ayuda a mejorar tu capacidad de razonamiento y argumentación mediante debates:\n\n"
+        "🔹 Debates de temas aleatorios con IA\n"
+        "🔹 Evaluación de tu capacidad para defender ideas\n"
+        "🔹 Ejercicios para mejorar tu capacidad argumentativa\n\n"
+        "Accede directamente a la actividad:\n"
+        "🧠 [Actividad de Pensamiento Crítico](https://trabajo-de-grado-2-front.vercel.app/activity/debate-ia)"
+    )
+    
+    try:
+        await update.message.reply_text(pensamiento_message, parse_mode=ParseMode.MARKDOWN)
+    except Exception as e:
+        logging.error(f"Error al enviar información de pensamiento crítico: {e}")
+        await update.message.reply_text(
+            "Actividad de Pensamiento Crítico: https://trabajo-de-grado-2-front.vercel.app/activity/debate-ia"
+        )
 
 async def main():
     TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
     app.add_handler(CommandHandler('start', start))
+    app.add_handler(CommandHandler('contacto', contacto))
+    app.add_handler(CommandHandler('oratoria', oratoria))
+    app.add_handler(CommandHandler('pensamiento', pensamiento))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
-    # Correr el bot de forma asíncrona
     await app.initialize()
     await app.start()
     await app.updater.start_polling()
     
-    # Mantener el bot funcionando hasta que se cierre el programa
     try:
-        await asyncio.Future()  # Correr indefinidamente
+        await asyncio.Future()
     except (KeyboardInterrupt, SystemExit):
-        # Si se interrumpe el programa, cerrar el bot
         await app.stop()
         await app.updater.stop()
 
 if __name__ == '__main__':
-    # Ejecutar la función main de forma asíncrona
     asyncio.run(main())

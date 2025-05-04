@@ -7,7 +7,6 @@ import traceback
 from main_bot import main
 from flask import Flask, jsonify
 
-# Configurar logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -41,17 +40,14 @@ def bot_status():
         "bot_errors": error_log
     }), 200
 
-# Lista para almacenar los errores
 error_log = []
 
 def run_bot():
-    # Crear un nuevo bucle de eventos para este hilo
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     
     try:
         logger.info("Iniciando el bot de Telegram...")
-        # Ejecutar el bot en el nuevo bucle
         loop.run_until_complete(main_async())
     except Exception as e:
         error_message = f"Error en el bot: {str(e)}\n{traceback.format_exc()}"
@@ -61,14 +57,11 @@ def run_bot():
         loop.close()
         logger.info("Bot de Telegram detenido")
 
-# Función asíncrona que envuelve a main
 async def main_async():
     try:
-        # Verificar si main ya es una coroutine
         if asyncio.iscoroutinefunction(main):
             return await main()
         else:
-            # Si main no es una coroutine, ejecutarla normalmente
             return main()
     except Exception as e:
         error_message = f"Error en main_async: {str(e)}\n{traceback.format_exc()}"

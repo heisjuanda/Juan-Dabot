@@ -57,6 +57,19 @@ gunicorn wsgi:app
 
 - **Reportes:** Se generan métricas que muestran la mejora o empeoramiento según las calificaciones de las actividades realizadas por los usuarios en ambas habilidades.
 
+## Comandos del Bot
+
+- **/start**: Inicia la conversación con el bot, muestra un mensaje de bienvenida y envía un código QR para acceder a la aplicación web.
+- **/oratoria**: Proporciona información detallada sobre la actividad de Oratoria y un enlace directo para acceder a ella.
+- **/pensamiento**: Proporciona información detallada sobre la actividad de Pensamiento Crítico y un enlace directo para acceder a ella.
+- **/contacto**: Muestra información de contacto del desarrollador, incluyendo enlaces a sus redes sociales (Instagram, Telegram y LinkedIn).
+
+## Enlaces Directos
+
+- **Aplicación Web**: [https://trabajo-de-grado-2-front.vercel.app/](https://trabajo-de-grado-2-front.vercel.app/)
+- **Actividad de Oratoria**: [https://trabajo-de-grado-2-front.vercel.app/activity/oratoria](https://trabajo-de-grado-2-front.vercel.app/activity/oratoria)
+- **Actividad de Pensamiento Crítico**: [https://trabajo-de-grado-2-front.vercel.app/activity/debate-ia](https://trabajo-de-grado-2-front.vercel.app/activity/debate-ia)
+
 ## Gestión de Errores
 
 En la app pueden ocurrir errores por límites de los servicios utilizados. Algunas soluciones:
@@ -67,4 +80,8 @@ En la app pueden ocurrir errores por límites de los servicios utilizados. Algun
 ## Desarrollador
 
 Juan David Moreno Alfonso, estudiante de Ingeniería en Sistemas de la Universidad del Valle sede Tuluá.
-Instagram: @hellojuanda 
+
+### Contacto
+- Instagram: [@hellojuanda](https://www.instagram.com/hellojuanda/)
+- Telegram: @heisjuanda
+- LinkedIn: [Juan David Moreno](https://www.linkedin.com/in/juan-david-moreno-883a46233/) 
