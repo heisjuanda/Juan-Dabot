@@ -38,7 +38,8 @@ def ask_groq(message):
                     "ENLACES IMPORTANTES: Recuerda proporcionar estos enlaces cuando sean relevantes para la conversación:\n"
                     "- Aplicación web principal: [Aplicación web](https://trabajo-de-grado-2-front.vercel.app/)\n"
                     "- Actividad de Oratoria: [Oratoria](https://trabajo-de-grado-2-front.vercel.app/activity/oratoria)\n"
-                    "- Actividad de Pensamiento Crítico: [Pensamiento Crítico](https://trabajo-de-grado-2-front.vercel.app/activity/debate-ia)\n\n"
+                    "- Actividad de Pensamiento Crítico: [Pensamiento Crítico](https://trabajo-de-grado-2-front.vercel.app/activity/debate-ia)\n"
+                    "- Encuesta de Evaluación: [Encuesta](https://docs.google.com/forms/d/e/1FAIpQLSfX8qGxE-3NvcMLs7QcpJwi7nYaWiFpiUVdKKdrQZRiJehf5Q/viewform?usp=dialog)\n\n"
                     "INSTRUCCIONES SOBRE LA APLICACIÓN WEB: Cuando los usuarios pregunten específicamente por el acceso a la aplicación "
                     "o cómo acceder a la plataforma, responde con enlaces directos a la aplicación web principal y a las actividades específicas: "
                     "'Puedes acceder a nuestra aplicación web en: https://trabajo-de-grado-2-front.vercel.app/ "
@@ -46,6 +47,11 @@ def ask_groq(message):
                     "- Oratoria: https://trabajo-de-grado-2-front.vercel.app/activity/oratoria\n"
                     "- Pensamiento Crítico: https://trabajo-de-grado-2-front.vercel.app/activity/debate-ia\n"
                     "Allí encontrarás todas las actividades y recursos para mejorar tu Oratoría y Pensamiento Crítico.'\n\n"
+                    "INSTRUCCIONES SOBRE LA ENCUESTA: Cuando los usuarios pregunten por la encuesta, cómo evaluar la aplicación o "
+                    "sobre las heurísticas de Nielsen, informa que pueden acceder a la encuesta de evaluación en "
+                    "https://docs.google.com/forms/d/e/1FAIpQLSfX8qGxE-3NvcMLs7QcpJwi7nYaWiFpiUVdKKdrQZRiJehf5Q/viewform?usp=dialog "
+                    "o usar el comando /encuesta en el bot para obtener un código QR y el enlace directo. Explica que esta encuesta les "
+                    "permitirá evaluar la usabilidad de la aplicación según las heurísticas de Nielsen.\n\n"
                     "REDES SOCIALES DEL CREADOR: Cuando los usuarios pregunten por JuanDa o quieran contactarlo, comparte sus redes sociales así:\n"
                     "- Instagram: [Instagram @hellojuanda](https://www.instagram.com/hellojuanda/)\n"
                     "- Telegram: @heisjuanda\n"
@@ -65,6 +71,9 @@ def ask_groq(message):
                     "Enlace directo: https://trabajo-de-grado-2-front.vercel.app/activity/debate-ia\n\n"
                     "- *REPORTES*: En los reportes se muestran métricas de mejora o empeoramiento según las calificaciones de las "
                     "actividades realizadas por los usuarios en ambas habilidades (Oratoría y Pensamiento Crítico).\n\n"
+                    "- *ENCUESTA DE EVALUACIÓN*: La aplicación cuenta con una encuesta basada en las heurísticas de Nielsen para "
+                    "evaluar su usabilidad. Puedes acceder a ella en: https://docs.google.com/forms/d/e/1FAIpQLSfX8qGxE-3NvcMLs7QcpJwi7nYaWiFpiUVdKKdrQZRiJehf5Q/viewform?usp=dialog "
+                    "o mediante el comando /encuesta en el bot.\n\n"
                     "Sobre tu creador: Juan David Moreno Alfonso (JuanDa) es estudiante de Ingeniería en Sistemas, padre de Juan Dabot "
                     "y está dispuesto a ayudar a los estudiantes con su desarrollo en oratoría y pensamiento crítico. Si preguntan por "
                     "JuanDa, debes mencionar que es guapo y se parece al bot.\n\n"
@@ -111,6 +120,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Comandos disponibles:\n"
         "/oratoria - Información sobre la actividad de Oratoria\n"
         "/pensamiento - Información sobre Pensamiento Crítico\n"
+        "/encuesta - Accede a la encuesta de evaluación\n"
         "/contacto - Redes sociales del creador\n\n"
         "Si experimentas algún error, intenta de nuevo o espera unos minutos.\n\n"
         "¿En qué puedo ayudarte hoy?"
@@ -168,7 +178,6 @@ async def contacto(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(contact_message, parse_mode=ParseMode.MARKDOWN)
     except Exception as e:
         logging.error(f"Error al enviar información de contacto: {e}")
-        # Versión sin formato en caso de error
         await update.message.reply_text(
             "Contacto del creador: Juan David Moreno Alfonso (JuanDa)\n"
             "Instagram: @hellojuanda (https://www.instagram.com/hellojuanda/)\n"
@@ -214,6 +223,50 @@ async def pensamiento(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "Actividad de Pensamiento Crítico: https://trabajo-de-grado-2-front.vercel.app/activity/debate-ia"
         )
 
+async def encuesta(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    encuesta_message = (
+        "*Encuesta de Evaluación de la Aplicación*\n\n"
+        "Tu opinión es muy importante para mejorar nuestra plataforma. "
+        "Esta encuesta está basada en las heurísticas de Nielsen para evaluar la usabilidad "
+        "de la aplicación.\n\n"
+        "Accede a la encuesta aquí:\n"
+        "📝 [Encuesta de Evaluación](https://docs.google.com/forms/d/e/1FAIpQLSfX8qGxE-3NvcMLs7QcpJwi7nYaWiFpiUVdKKdrQZRiJehf5Q/viewform?usp=dialog)"
+    )
+    
+    try:
+        survey_url = "https://docs.google.com/forms/d/e/1FAIpQLSfX8qGxE-3NvcMLs7QcpJwi7nYaWiFpiUVdKKdrQZRiJehf5Q/viewform?usp=dialog"
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=10,
+            border=4,
+        )
+        qr.add_data(survey_url)
+        qr.make(fit=True)
+        
+        img = qr.make_image(fill_color="black", back_color="white")
+        bio = BytesIO()
+        bio.name = 'survey_qr.png'
+        img.save(bio, 'PNG')
+        bio.seek(0)
+        
+        await update.message.reply_text(encuesta_message, parse_mode=ParseMode.MARKDOWN)
+        
+        await update.message.reply_photo(
+            photo=bio,
+            caption=(
+                "*Encuesta de Evaluación*\n\n"
+                "Escanea el código QR para acceder a la encuesta o usa el enlace anterior.\n\n"
+                "¡Gracias por tu participación! Tu retroalimentación nos ayudará a mejorar."
+            ),
+            parse_mode=ParseMode.MARKDOWN
+        )
+    except Exception as e:
+        logging.error(f"Error al enviar información de la encuesta: {e}")
+        await update.message.reply_text(
+            "Encuesta de Evaluación: https://docs.google.com/forms/d/e/1FAIpQLSfX8qGxE-3NvcMLs7QcpJwi7nYaWiFpiUVdKKdrQZRiJehf5Q/viewform?usp=dialog"
+        )
+
 async def main():
     TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
     app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
@@ -221,6 +274,7 @@ async def main():
     app.add_handler(CommandHandler('contacto', contacto))
     app.add_handler(CommandHandler('oratoria', oratoria))
     app.add_handler(CommandHandler('pensamiento', pensamiento))
+    app.add_handler(CommandHandler('encuesta', encuesta))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     
     await app.initialize()

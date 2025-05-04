@@ -62,6 +62,7 @@ gunicorn wsgi:app
 - **/start**: Inicia la conversación con el bot, muestra un mensaje de bienvenida y envía un código QR para acceder a la aplicación web.
 - **/oratoria**: Proporciona información detallada sobre la actividad de Oratoria y un enlace directo para acceder a ella.
 - **/pensamiento**: Proporciona información detallada sobre la actividad de Pensamiento Crítico y un enlace directo para acceder a ella.
+- **/encuesta**: Proporciona un enlace y código QR para acceder a la encuesta de evaluación basada en las heurísticas de Nielsen.
 - **/contacto**: Muestra información de contacto del desarrollador, incluyendo enlaces a sus redes sociales (Instagram, Telegram y LinkedIn).
 
 ## Enlaces Directos
@@ -69,6 +70,7 @@ gunicorn wsgi:app
 - **Aplicación Web**: [https://trabajo-de-grado-2-front.vercel.app/](https://trabajo-de-grado-2-front.vercel.app/)
 - **Actividad de Oratoria**: [https://trabajo-de-grado-2-front.vercel.app/activity/oratoria](https://trabajo-de-grado-2-front.vercel.app/activity/oratoria)
 - **Actividad de Pensamiento Crítico**: [https://trabajo-de-grado-2-front.vercel.app/activity/debate-ia](https://trabajo-de-grado-2-front.vercel.app/activity/debate-ia)
+- **Encuesta de Evaluación**: [https://docs.google.com/forms/d/e/1FAIpQLSfX8qGxE-3NvcMLs7QcpJwi7nYaWiFpiUVdKKdrQZRiJehf5Q/viewform?usp=dialog](https://docs.google.com/forms/d/e/1FAIpQLSfX8qGxE-3NvcMLs7QcpJwi7nYaWiFpiUVdKKdrQZRiJehf5Q/viewform?usp=dialog)
 
 ## Gestión de Errores
 
