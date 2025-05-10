@@ -86,4 +86,7 @@ Juan David Moreno Alfonso, estudiante de Ingeniería en Sistemas de la Universid
 ### Contacto
 - Instagram: [@hellojuanda](https://www.instagram.com/hellojuanda/)
 - Telegram: @heisjuanda
-- LinkedIn: [Juan David Moreno](https://www.linkedin.com/in/juan-david-moreno-883a46233/) 
+- LinkedIn: [Juan David Moreno](https://www.linkedin.com/in/juan-david-moreno-883a46233/)
+
+# Diagrama de la App
+![JuanDaBot (2)](https://github.com/user-attachments/assets/8c203115-7f8d-4f05-a93c-5e6c7de1bd98)
